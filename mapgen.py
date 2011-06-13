@@ -5,20 +5,26 @@ pi = math.pi
 
 mapSize = (600,400)
 numContinents = 7
+numContinents = 50
 
 def circle(radius):
+	if radius == 0:
+		return [[0,0]]
 	points = []
-	for i in range(int(6*pi*radius)):
-		points.append([int(radius * math.cos(i/(6*pi))),int(radius * math.sin(i/(6*pi)))])
+	for i in range(int(2*pi*radius)+1):
+		points.append([int(radius * math.cos(i/float(radius))),int(radius * math.sin(i/float(radius)))])
 		
 	return points
 
-def expand(points, colors, pix):
-	mindist_2 = 0
-	#for i in range(len(points)):
-		#for j in range(i+1, len(points)):
-	for i in range(0,600):
-		circle = circle	
+def expand(points, colors, pix, imSize):
+	for i in range(0,imSize[0]):
+		circ = circle(i/3.0)
+		for p in circ:
+			for i in range(len(points)):
+				q = (points[i][0]+p[0], points[i][1]+p[1])
+				if 0 <= q[0] < imSize[0] and 0 <= q[1] < imSize[1]:
+					if pix[q[0],q[1]] == (0,0,0):
+						pix[q[0],q[1]] = colors[i]
 
 
 im = Image.new("RGB", mapSize, "black")
@@ -30,19 +36,12 @@ contCols = [(255,0,0),(255,255,0),(0,255,0),(0,255,255),(0,0,255),(255,0,255),(1
 for i in range(numContinents):
 	continents.append([random.randint(0,mapSize[0]-1), random.randint(0,mapSize[1]-1)])
 
-i = 0
-for p in continents:
-	pix[p[0],p[1]] = contCols[i]
-	i += 1
+expand(continents, contCols, pix, mapSize)
 
 
+countries = []
 
-#circle fill test
-#for r in range(200):
-#	circ = circle(r/2.0)
-#	for p in circ:
-#		pix[150+p[0],150+p[1]] = (255,255,255)
-print circle(0)
-print circle(1)
+for i in range(numCountries):
+	countries.append([random.randint(0,mapSize[0]-1), random.randint(0,mapSize[1]-1)])
 
 im.save("map.png")
