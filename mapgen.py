@@ -12,8 +12,12 @@ class country:
 	def __init__(self, centre, color, continent = -1, neighbours = []):
 		self.centre = centre
 		self.continent = continent
-		self.neighbours = neighbours
+		self.neighbours = []
 		self.color = color
+		
+	def addNeighbour(self, n):
+		if self.neighbours.count(n) == 0:
+			self.neighbours.append(n)
 
 def circle(radius):
 	if radius == 0:
@@ -39,6 +43,7 @@ im = Image.new("RGB", mapSize, "black")
 pix = im.load()
 imC = Image.new("RGB", mapSize, "black")
 pixC = imC.load()
+drawC = ImageDraw.Draw(imC)
 borders = Image.new("RGB", mapSize, "black")
 pixB = borders.load()
 
@@ -71,14 +76,34 @@ for i in range(numCountries):
 		
 expand(countryPoints, countryColors, pixC, mapSize, mapSize[0]/2)
 
+colCountry = {}
+for i in range(len(countries)):
+	colCountry[countries[i].color] = i
+
 for x in range(mapSize[0]-1):
 	for y in range(mapSize[1]-1):
 		if pixC[x,y] != pixC[x,y+1] or pixC[x,y] != pixC[x+1,y]:
 			pixB[x,y] = (255,255,255)
+			if pixC[x,y] != (0,0,0) and pixC[x+1,y] != (0,0,0) and pixC[x,y+1] != (0,0,0):
+				c1 = colCountry[pixC[x,y]]
+				c2 = colCountry[pixC[x+1,y]]
+				c3 = colCountry[pixC[x,y+1]]
+				if c1 != c2:
+					countries[c1].addNeighbour(c2)
+					countries[c2].addNeighbour(c1)
+				if c1 != c3 and c3 != c2:
+					countries[c1].addNeighbour(c3)
+					countries[c3].addNeighbour(c1)
 
 for x in range(mapSize[0]):
 	for y in range(mapSize[1]):
 		if pixB[x,y] == (255,255,255):
-			pixC[x,y] = (0,0,0)
+			pixC[x,y] = (255,255,255)
+
+for country in countries:
+	print country.neighbours
+	for i in country.neighbours:
+		drawC.line([country.centre[0],country.centre[1], countries[i].centre[0],countries[i].centre[1]], fill=(0,0,0))
+
 im.save("map.png")
 imC.save("mapC.png")
