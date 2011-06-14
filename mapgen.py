@@ -18,6 +18,10 @@ class country:
 	def addNeighbour(self, n):
 		if self.neighbours.count(n) == 0:
 			self.neighbours.append(n)
+			
+def breakConnection(countries, i, j):
+	countries[i].neighbours.remove(j)
+	countries[j].neighbours.remove(i)
 
 def circle(radius):
 	if radius == 0:
@@ -49,12 +53,12 @@ pixB = borders.load()
 
 
 #pick random continent centres
-continents = []
+continentPoints = []
 
 for i in range(numContinents):
-	continents.append([random.randint(0,mapSize[0]-1), random.randint(0,mapSize[1]-1)])
+	continentPoints.append([random.randint(0,mapSize[0]-1), random.randint(0,mapSize[1]-1)])
 
-expand(continents, contCols, pix, mapSize, mapSize[0])
+expand(continentPoints, contCols, pix, mapSize, mapSize[0])
 
 
 countries = []
@@ -83,7 +87,9 @@ for i in range(len(countries)):
 for x in range(mapSize[0]-1):
 	for y in range(mapSize[1]-1):
 		if pixC[x,y] != pixC[x,y+1] or pixC[x,y] != pixC[x+1,y]:
+			#store the borders in a separate picture to be drawn on later
 			pixB[x,y] = (255,255,255)
+			#store the connection between countries
 			if pixC[x,y] != (0,0,0) and pixC[x+1,y] != (0,0,0) and pixC[x,y+1] != (0,0,0):
 				c1 = colCountry[pixC[x,y]]
 				c2 = colCountry[pixC[x+1,y]]
@@ -95,13 +101,34 @@ for x in range(mapSize[0]-1):
 					countries[c1].addNeighbour(c3)
 					countries[c3].addNeighbour(c1)
 
+continents = []
+for i in range(numContinents):
+	a = []
+	for j in range(len(countries)):
+		if countries[j].continent == i:
+			a.append(j)
+	continents.append(a)
+
+for i in range(numContinents):
+	for j in range(i+1, numContinents):
+		connections = []
+		for k in continents[i]:
+			for l in countries[k].neighbours:
+				if continents[j].count(l) != 0:
+					connections.append((l,k))
+		if len(connections) > 1:
+			deletions = random.sample(connections, random.randint(0, len(connections)-1))
+			for d in deletions:
+				breakConnection(countries, d[0],d[1])
+
+#draw on the white borders worked out earlier
 for x in range(mapSize[0]):
 	for y in range(mapSize[1]):
 		if pixB[x,y] == (255,255,255):
 			pixC[x,y] = (255,255,255)
 
+#draw lines between connected countries
 for country in countries:
-	print country.neighbours
 	for i in country.neighbours:
 		drawC.line([country.centre[0],country.centre[1], countries[i].centre[0],countries[i].centre[1]], fill=(0,0,0))
 
