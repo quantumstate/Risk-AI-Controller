@@ -1,6 +1,7 @@
 import sys
 import Image, ImageFilter, ImageDraw, ImageChops
 import math, random
+import json
 pi = math.pi
 
 mapSize = (600,400)
@@ -152,4 +153,15 @@ for country in countries:
 #im.save("map.png")
 imC.save("map.png")
 
+countriesJson = []
+for country in countries:
+	countriesJson.append({'centre':country.centre,
+	                      'continent':country.continent,
+	                      'neighbours':country.neighbours,
+	                      'color':country.color})
 
+mapObj = {"image":"map.png",
+          "countries":countriesJson}
+#print json.dumps(mapObj)
+f = open('map.json', 'w')
+json.dump(mapObj, f)
