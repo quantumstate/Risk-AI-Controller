@@ -26,7 +26,7 @@ def breakConnection(countries, i, j):
 	countries[i].neighbours.remove(j)
 	countries[j].neighbours.remove(i)
 
-#make a list of pixels centred around 0 ina  circle
+#make a list of pixels centred around 0 in a circle
 def circle(radius):
 	if radius == 0:
 		return [[0,0]]
@@ -136,8 +136,22 @@ for i in range(numContinents):
 		if len(connections) > 1:
 			#randomly pick some connections to remove (always leaving at least 1)
 			deletions = random.sample(connections, random.randint(0, len(connections)-1))
+
 			for d in deletions:
 				breakConnection(countries, d[0],d[1])
+
+numContConnections = []
+for i in range(numContinents):
+	numConnect = 0
+	for j in range(i) + range(i+1, numContinents):
+		connections = [] # list of connections between continent i and continent j
+		#generate the list of connections
+		for k in continents[i]: 
+			for l in countries[k].neighbours:
+				if continents[j].count(l) != 0:
+					connections.append((l,k))
+		numConnect += len(connections)
+	numContConnections.append(numConnect)
 
 #draw on the white borders worked out earlier
 for x in range(mapSize[0]):
@@ -149,8 +163,14 @@ for x in range(mapSize[0]):
 for country in countries:
 	for i in country.neighbours:
 		drawC.line([country.centre[0],country.centre[1], countries[i].centre[0],countries[i].centre[1]], fill=(0,0,0))
+		
+#calculate the continent control values
+print numContConnections
+continentVals = []
+for continent in continents:
+	continentVals.append(int(len(continent[i])*0.3 + 0.4*numContConnections[i]))
 
-#im.save("map.png")
+#im.save("mapCont.png")
 imC.save("map.png")
 
 countriesJson = []
@@ -161,7 +181,8 @@ for country in countries:
 	                      'color':country.color})
 
 mapObj = {"image":"map.png",
-          "countries":countriesJson}
+          "countries":countriesJson
+          "continentVals":continentVals}
 #print json.dumps(mapObj)
 f = open('map.json', 'w')
 json.dump(mapObj, f)
