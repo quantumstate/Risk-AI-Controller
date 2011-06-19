@@ -165,10 +165,9 @@ for country in countries:
 		drawC.line([country.centre[0],country.centre[1], countries[i].centre[0],countries[i].centre[1]], fill=(0,0,0))
 		
 #calculate the continent control values
-print numContConnections
 continentVals = []
-for continent in continents:
-	continentVals.append(int(len(continent[i])*0.3 + 0.4*numContConnections[i]))
+for i in range(len(continents)):
+	continentVals.append(int(len(continents[i])*0.3 + 0.4*numContConnections[i]))
 
 #im.save("mapCont.png")
 imC.save("map.png")
@@ -181,7 +180,7 @@ for country in countries:
 	                      'color':country.color})
 
 mapObj = {"image":"map.png",
-          "countries":countriesJson
+          "countries":countriesJson,
           "continentVals":continentVals}
 #print json.dumps(mapObj)
 f = open('map.json', 'w')
